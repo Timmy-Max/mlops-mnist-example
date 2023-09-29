@@ -49,7 +49,7 @@ jobs:
 
       - name: Install library (Linux/OSX)
         if: ${{ runner.os != 'Windows' }}
-        run: poetry install --no-interaction --with deeplearning
+        run: poetry install --no-interaction
 
       - name: Install library (Windows)
         if: ${{ runner.os == 'Windows' }}
