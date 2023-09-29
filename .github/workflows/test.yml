@@ -14,17 +14,15 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: "3.11"
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest
           pip install poetry
           poetry install --no-root
 
-      - name: Test
-        run: |
-          pytest --no-root
+      - name: Pre-Commit
+        uses: pre-commit/action@v3.0.0
