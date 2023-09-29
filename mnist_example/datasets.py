@@ -1,6 +1,6 @@
-from torch.utils.data import DataLoader
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
+from torch.utils.data import DataLoader
 
 
 def mnist_dataloader(batch_size: int, train: bool, shuffle: bool = True) -> DataLoader:
