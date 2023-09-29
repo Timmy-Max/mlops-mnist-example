@@ -9,8 +9,9 @@ class FCN(nn.Module):
         self,
         input_dim: int = 784,
         output_dim: int = 10,
-        hidden_dim_1: int = 100,
-        hidden_dim_2: int = 50,
+        hidden_dim_1: int = 256,
+        hidden_dim_2: int = 128,
+        dropout: float = 0.3,
     ):
         """
         Args:
@@ -20,18 +21,22 @@ class FCN(nn.Module):
             hidden_dim_2: second hidden dimension size
         """
         super(FCN, self).__init__()
+        self.fc = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim_1),
+            nn.BatchNorm1d(hidden_dim_1),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim_1, hidden_dim_2),
+            nn.BatchNorm1d(hidden_dim_2),
+            nn.Dropout(dropout),
+            nn.ReLU(),
+            nn.Linear(hidden_dim_2, output_dim),
+        )
         self.input_dim = input_dim
         self.output_dim = output_dim
-        self.fc1 = nn.Linear(input_dim, hidden_dim_1)
-        self.fc2 = nn.Linear(hidden_dim_1, hidden_dim_2)
-        self.fc3 = nn.Linear(hidden_dim_2, output_dim)
-        self.relu = nn.ReLU()
 
     def forward(self, x: Tensor) -> Tensor:
         x = x.view(-1, self.input_dim)
-        x = self.relu(self.fc1(x))
-        x = self.relu(self.fc2(x))
-        x = self.fc3(x)
+        x = self.fc(x)
         return x
 
 
