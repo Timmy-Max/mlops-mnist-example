@@ -12,7 +12,16 @@ def train_model(
     n_epochs: int,
     device: torch.device,
 ):
-    """Function trains the model"""
+    """Function trains the model
+
+    Args:
+        model: model to train
+        optimizer: optimizer
+        loss_function: loss function
+        train_loader: dataloader with training data
+        n_epochs: number of training epochs
+        device: device on which model will be trained
+    """
     model.train()
     for epoch in range(n_epochs):
         epoch_loss = 0

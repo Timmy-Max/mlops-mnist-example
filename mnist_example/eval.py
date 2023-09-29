@@ -9,7 +9,17 @@ def eval_model(
     eval_loader: DataLoader,
     device: torch.device,
 ) -> tuple[float, float]:
-    """Function checks the quality of the model and returns the loss and accuracy"""
+    """Function checks the quality of the model and returns the loss and accuracy
+
+    Args:
+        model: model to evaluate
+        loss_function: loss function
+        eval_loader: dataloader with evaluation data
+        device: the device on which model will be tested
+
+    Returns:
+        loss value and accuracy on whole evaluation dataset
+    """
     model.eval()
     accuracy = 0
     loss_value = 0
