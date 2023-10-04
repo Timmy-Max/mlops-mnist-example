@@ -5,4 +5,4 @@
 
 A simple example of MNIST classification for an MLOps course. I couldn't think of anything better :)
 
-The main.py starts FCN and CNN training and outputs the quality on the test dataset. In the config.py you can set training parameters.
+The train.py runs FCN and CNN training and saves the trained models. The infer.py runs a model check and saves the result to a txt file.
