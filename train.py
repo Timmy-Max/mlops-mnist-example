@@ -57,7 +57,7 @@ if __name__ == "__main__":
     else:
         os.makedirs("models")
         torch.save(fcn.state_dict(), "models/fcn.pt")
-    print("FCN has been saved successfully")
+    print("FCN was successfully saved: models/fcn.pt")
 
     print()
 
@@ -77,4 +77,4 @@ if __name__ == "__main__":
         os.makedirs("models")
 
     torch.save(cnn.state_dict(), "models/cnn.pt")
-    print("CNN has been saved successfully")
+    print("CNN was successfully saved: models/cnn.pt")

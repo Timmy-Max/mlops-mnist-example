@@ -54,3 +54,4 @@ if __name__ == "__main__":
         report.write(f"CNN eval loss = {cnn_loss}")
         report.write("\n")
         report.write(f"CNN eval accuracy = {cnn_accuracy}")
+    print("Report was successfully saved: reports/inference_report.txt")
