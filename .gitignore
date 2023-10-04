@@ -90,3 +90,9 @@ target/
 
 # pytest cache
 .pytest_cache/
+
+# exclude saved models from source control by default
+/models/
+
+# exclude saved reports from source control by default
+/reports/

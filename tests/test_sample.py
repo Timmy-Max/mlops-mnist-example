@@ -12,7 +12,7 @@ from config import (
 from mnist_example.datasets import mnist_dataloader
 from mnist_example.eval import eval_model
 from mnist_example.models import CNN, FCN
-from mnist_example.train import train_model
+from mnist_example.train_eval import train_model
 
 
 def test_fcn():
