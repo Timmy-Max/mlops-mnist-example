@@ -24,6 +24,10 @@ if __name__ == "__main__":
 
     loss_function = nn.CrossEntropyLoss()
 
+    assert os.path.isfile("models/fcn.pt") and os.path.isfile(
+        "models/cnn.pt"
+    ), "You have to train the models first. To train the models, run train.py."
+
     fcn.load_state_dict(torch.load("models/fcn.pt"))
     cnn.load_state_dict(torch.load("models/cnn.pt"))
 
