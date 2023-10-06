@@ -23,7 +23,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install poetry
           poetry install --no-root
-          poetry run pip install torch==2.0.1+cu117 torchvision==0.15.2+cu117 --index-url https://download.pytorch.org/whl/cu117
 
       - name: Pre-Commit
         uses: pre-commit/action@v3.0.0
