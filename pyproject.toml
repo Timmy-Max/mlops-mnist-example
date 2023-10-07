@@ -10,7 +10,6 @@ packages = [{include = "mlops_mnist_example"}]
 python = "^3.11"
 torch = { version = "2.0.1+cu117", source="torch"}
 torchvision = { version="^0.15.2+cu117", source="torch"}
-pytest = "^7.4.2"
 
 [[tool.poetry.source]]
 name = "torch"
@@ -19,6 +18,7 @@ priority = "explicit"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^3.4.0"
+pytest = "^7.4.2"
 
 [tool.black]
 line-length = 88
