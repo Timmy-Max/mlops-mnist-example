@@ -10,7 +10,7 @@ from mnist_example.models import CNN, FCN
 from mnist_example.train_eval import eval_model
 
 
-if __name__ == "__main__":
+def infer():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     batch_size_fcn = FCN_TRAIN_CONFIG["batch_size"]
@@ -59,3 +59,7 @@ if __name__ == "__main__":
         report.write("\n")
         report.write(f"CNN eval accuracy = {cnn_accuracy}")
     print("Report was successfully saved: reports/inference_report.txt")
+
+
+if __name__ == "__main__":
+    infer()
