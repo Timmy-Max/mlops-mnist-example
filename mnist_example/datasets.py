@@ -21,7 +21,7 @@ def mnist_dataloader(batch_size: int, train: bool, shuffle: bool = True) -> Data
         ]
     )
     dataset = datasets.MNIST(
-        root="./data", train=train, download=True, transform=transform
+        root="./data", train=train, download=False, transform=transform
     )
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
     return dataloader
