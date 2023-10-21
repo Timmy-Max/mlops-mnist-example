@@ -19,6 +19,8 @@ priority = "explicit"
 [tool.poetry.dev-dependencies]
 pre-commit = "^3.4.0"
 pytest = "^7.4.2"
+dvc = "^3.27.0"
+fire = "0.5.0"
 
 [tool.black]
 line-length = 88
