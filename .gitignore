@@ -93,3 +93,6 @@ target/
 
 # exclude saved reports from source control by default
 /reports/
+
+# exclude hydra outputs from source control by default
+/outputs/

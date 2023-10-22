@@ -1,46 +1,38 @@
 import os
 import time
 
+import hydra
 import torch
 import torch.nn as nn
-from config import (
-    CNN_CONFIG,
-    CNN_OPTIMIZER_CONFIG,
-    CNN_TRAIN_CONFIG,
-    FCN_CONFIG,
-    FCN_OPTIMIZER_CONFIG,
-    FCN_TRAIN_CONFIG,
-)
+from config import Params
 
 from mnist_example.datasets import mnist_dataloader
 from mnist_example.models import CNN, FCN
 from mnist_example.train_eval import train_model
 
 
-if __name__ == "__main__":
+@hydra.main(config_path="conf", config_name="config", version_base="1.3")
+def train(cfg: Params) -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    batch_size_fcn = FCN_TRAIN_CONFIG["batch_size"]
-    n_epochs_fcn = FCN_TRAIN_CONFIG["n_epochs"]
-
-    batch_size_cnn = CNN_TRAIN_CONFIG["batch_size"]
-    n_epochs_cnn = CNN_TRAIN_CONFIG["n_epochs"]
-
     train_loader_fcn = mnist_dataloader(
-        batch_size=batch_size_fcn, train=True, shuffle=True
+        batch_size=cfg.fcn_training.batch_size, train=True, shuffle=True
     )
 
     train_loader_cnn = mnist_dataloader(
-        batch_size=batch_size_cnn, train=True, shuffle=True
+        batch_size=cfg.cnn_training.batch_size, train=True, shuffle=True
     )
 
-    fcn = FCN(**FCN_CONFIG).to(device)
-    cnn = CNN(**CNN_CONFIG).to(device)
+    fcn = FCN(**dict(cfg.fcn)).to(device)
+    cnn = CNN(**dict(cfg.cnn)).to(device)
 
     loss_function = nn.CrossEntropyLoss()
-    optimizer_fcn = torch.optim.Adam(fcn.parameters(), **FCN_OPTIMIZER_CONFIG)
-    optimizer_cnn = torch.optim.Adam(cnn.parameters(), **CNN_OPTIMIZER_CONFIG)
-
+    optimizer_fcn = torch.optim.Adam(
+        fcn.parameters(), lr=cfg.fcn_training.learning_rate
+    )
+    optimizer_cnn = torch.optim.Adam(
+        cnn.parameters(), lr=cfg.cnn_training.learning_rate
+    )
     start_time = time.time()
     print("FCN training:")
     train_model(
@@ -48,7 +40,7 @@ if __name__ == "__main__":
         optimizer_fcn,
         loss_function,
         train_loader_fcn,
-        n_epochs_fcn,
+        cfg.fcn_training.n_epochs,
         device,
     )
     print(f"Elapsed time: {(time.time() - start_time):.3f} sec")
@@ -68,7 +60,7 @@ if __name__ == "__main__":
         optimizer_cnn,
         loss_function,
         train_loader_cnn,
-        n_epochs_cnn,
+        cfg.cnn_training.n_epochs,
         device,
     )
     print(f"Elapsed time: {(time.time() - start_time):.3f} sec")
@@ -78,3 +70,7 @@ if __name__ == "__main__":
 
     torch.save(cnn.state_dict(), "models/cnn.pt")
     print("CNN was successfully saved: models/cnn.pt")
+
+
+if __name__ == "__main__":
+    train()

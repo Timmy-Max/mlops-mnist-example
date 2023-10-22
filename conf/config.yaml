@@ -1,0 +1,20 @@
+fcn:
+  input_dim: 784
+  output_dim: 10
+  hidden_dim_1: 128
+  hidden_dim_2: 64
+  dropout: 0.5
+
+fcn_training:
+  batch_size: 256
+  n_epochs: 2
+  learning_rate: 1e-3
+
+cnn:
+  output_dim: 10
+  dropout: 0.5
+
+cnn_training:
+  batch_size: 256
+  n_epochs: 2
+  learning_rate: 1e-3
