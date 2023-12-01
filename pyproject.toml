@@ -10,6 +10,7 @@ packages = [{include = "mlops_mnist_example"}]
 python = "^3.11"
 torch = { version = "2.0.1+cu117", source="torch"}
 torchvision = { version="^0.15.2+cu117", source="torch"}
+dvc = {extras = ["gdrive"], version = "^3.30.3"}
 
 [[tool.poetry.source]]
 name = "torch"
