@@ -29,5 +29,5 @@ jobs:
 
       - name: Test
         run: |
-          dvc pull
+          poetry run dvc pull
           poetry run pytest
