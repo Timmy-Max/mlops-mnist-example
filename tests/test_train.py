@@ -14,8 +14,12 @@ def test_fcn() -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     n_epochs_fcn = 1
 
-    train_loader_fcn = mnist_dataloader(batch_size=BATCH_SIZE, train=True, shuffle=True)
-    eval_loader_fcn = mnist_dataloader(batch_size=BATCH_SIZE, train=False, shuffle=True)
+    train_loader_fcn = mnist_dataloader(
+        batch_size=BATCH_SIZE, train=True, shuffle=True, load_from_source=True
+    )
+    eval_loader_fcn = mnist_dataloader(
+        batch_size=BATCH_SIZE, train=False, shuffle=True, load_from_source=True
+    )
 
     fcn = FCN().to(device)
     loss_function = nn.CrossEntropyLoss()
@@ -45,8 +49,12 @@ def test_cnn() -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     n_epochs_cnn = 1
 
-    train_loader_cnn = mnist_dataloader(batch_size=BATCH_SIZE, train=True, shuffle=True)
-    eval_loader_cnn = mnist_dataloader(batch_size=BATCH_SIZE, train=False, shuffle=True)
+    train_loader_cnn = mnist_dataloader(
+        batch_size=BATCH_SIZE, train=True, shuffle=True, load_from_source=True
+    )
+    eval_loader_cnn = mnist_dataloader(
+        batch_size=BATCH_SIZE, train=False, shuffle=True, load_from_source=True
+    )
 
     cnn = CNN().to(device)
     loss_function = nn.CrossEntropyLoss()
