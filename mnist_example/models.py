@@ -1,5 +1,8 @@
+import pytorch_lightning as pl
+import torch
 import torch.nn as nn
 from torch import Tensor
+from torchmetrics import Accuracy, F1Score, Precision, Recall
 
 
 class FCN(nn.Module):
@@ -70,3 +73,57 @@ class CNN(nn.Module):
         x = self.dropout(x)
         x = self.fc(x)
         return x
+
+
+class MNISTClassifier(pl.LightningModule):
+    def __init__(self, model, model_params, training_params):
+        super().__init__()
+        self.model = model(**model_params)
+        num_classes = model_params["output_dim"]
+        self.accuracy = Accuracy("multiclass", num_classes=num_classes)
+        self.top_3_accuracy = Accuracy("multiclass", num_classes=num_classes, top_k=3)
+        self.precision = Precision("multiclass", num_classes=num_classes)
+        self.recall = Recall("multiclass", num_classes=num_classes)
+        self.f1 = F1Score("multiclass", num_classes=num_classes)
+        self.lr = training_params["learning_rate"]
+
+    def configure_optimizers(self):
+        return torch.optim.Adam(self.parameters(), lr=self.lr)
+
+    def forward(self, x):
+        return self.model(x)
+
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        logits = self(x)
+        loss = nn.functional.cross_entropy(logits, y)
+        pred = logits.argmax(dim=1)
+        acc = self.accuracy(pred, y)
+        precision = self.precision(pred, y)
+        recall = self.recall(pred, y)
+        f1 = self.f1(pred, y)
+
+        self.log("train_loss", loss, on_epoch=True)
+        self.log("train_acc", acc, on_epoch=True)
+        self.log("train_precision", precision, on_epoch=True)
+        self.log("train_recall", recall, on_epoch=True)
+        self.log("train_f1", f1, on_epoch=True)
+
+        return loss
+
+    def test_step(self, batch, batch_idx):
+        x, y = batch
+        logits = self(x)
+        loss = nn.functional.cross_entropy(logits, y)
+        pred = logits.argmax(dim=1)
+        acc = self.accuracy(pred, y)
+        precision = self.precision(pred, y)
+        recall = self.recall(pred, y)
+        f1 = self.f1(pred, y)
+
+        self.log("test_loss", loss, on_epoch=True)
+        self.log("test_acc", acc, on_epoch=True)
+        self.log("test_precision", precision, on_epoch=True)
+        self.log("test_recall", recall, on_epoch=True)
+        self.log("test_f1", f1, on_epoch=True)
+        return loss, acc, precision, recall, f1

@@ -96,3 +96,12 @@ target/
 
 # exclude hydra outputs from source control by default
 /outputs/
+
+# mlflow runs
+/mlruns/
+
+# mlflow artifacts
+/mlartifacts/
+
+# torch-lightning
+/lightning_logs/

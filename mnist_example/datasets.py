@@ -49,7 +49,10 @@ def mnist_dataloader(
         ]
     )
     dataset = datasets.MNIST(
-        root="./data", train=train, download=load_from_source, transform=transform
+        root="./data",
+        train=train,
+        download=load_from_source,
+        transform=transform,
     )
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
     return dataloader

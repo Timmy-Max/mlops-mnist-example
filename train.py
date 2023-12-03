@@ -1,19 +1,42 @@
 import os
-import time
 
 import hydra
+import mlflow
+import mlflow.pytorch
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 from config import Params
+from mlflow import MlflowClient
 
 from mnist_example.datasets import mnist_dataloader
-from mnist_example.models import CNN, FCN
-from mnist_example.train_eval import train_model
+from mnist_example.models import CNN, FCN, MNISTClassifier
+
+
+def print_auto_logged_info(r):
+    tags = {k: v for k, v in r.data.tags.items() if not k.startswith("mlflow.")}
+    artifacts = [f.path for f in MlflowClient().list_artifacts(r.info.run_id, "model")]
+    print(f"run_id: {r.info.run_id}")
+    print(f"artifacts: {artifacts}")
+    print(f"params: {r.data.params}")
+    print(f"metrics: {r.data.metrics}")
+    print(f"tags: {tags}")
+
+
+def convert_onnx(model: nn.Module, save_path: str, input_size: tuple[int]) -> None:
+    model.eval()
+    dummy_input = torch.randn((1,) + input_size, requires_grad=True)
+    torch.onnx.export(
+        model,
+        dummy_input,
+        save_path,
+    )
+    print(f"Model has been converted to ONNX and saved in {save_path}")
 
 
 @hydra.main(config_path="conf", config_name="config", version_base="1.3")
 def train(cfg: Params) -> None:
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     train_loader_fcn = mnist_dataloader(
         batch_size=cfg.fcn_training.batch_size, train=True, shuffle=True
@@ -23,53 +46,41 @@ def train(cfg: Params) -> None:
         batch_size=cfg.cnn_training.batch_size, train=True, shuffle=True
     )
 
-    fcn = FCN(**dict(cfg.fcn)).to(device)
-    cnn = CNN(**dict(cfg.cnn)).to(device)
+    fcn = MNISTClassifier(FCN, cfg.fcn, cfg.fcn_training)
+    cnn = MNISTClassifier(CNN, cfg.cnn, cfg.fcn_training)
 
-    loss_function = nn.CrossEntropyLoss()
-    optimizer_fcn = torch.optim.Adam(
-        fcn.parameters(), lr=cfg.fcn_training.learning_rate
-    )
-    optimizer_cnn = torch.optim.Adam(
-        cnn.parameters(), lr=cfg.cnn_training.learning_rate
-    )
-    start_time = time.time()
-    print("FCN training:")
-    train_model(
-        fcn,
-        optimizer_fcn,
-        loss_function,
-        train_loader_fcn,
-        cfg.fcn_training.n_epochs,
-        device,
-    )
-    print(f"Elapsed time: {(time.time() - start_time):.3f} sec")
-    if os.path.exists("models"):
-        torch.save(fcn.state_dict(), "models/fcn.pt")
-    else:
-        os.makedirs("models")
-        torch.save(fcn.state_dict(), "models/fcn.pt")
-    print("FCN was successfully saved: models/fcn.pt")
+    fcn_trainer = pl.Trainer(max_epochs=cfg.fcn_training.n_epochs)
+    cnn_trainer = pl.Trainer(max_epochs=cfg.cnn_training.n_epochs)
 
-    print()
+    remote_server_uri = "http://127.0.0.1:5000"
+    mlflow.set_tracking_uri(remote_server_uri)
+    mlflow.pytorch.autolog()
 
-    start_time = time.time()
-    print("CNN training:")
-    train_model(
-        cnn,
-        optimizer_cnn,
-        loss_function,
-        train_loader_cnn,
-        cfg.cnn_training.n_epochs,
-        device,
-    )
-    print(f"Elapsed time: {(time.time() - start_time):.3f} sec")
+    mlflow.set_experiment("MNIST FCN and CNN training")
+
+    with mlflow.start_run(run_name="fcn_training") as run:
+        mlflow.log_params(cfg.fcn)
+        fcn_trainer.fit(fcn, train_loader_fcn)
+        input_size = next(iter(train_loader_fcn))[0].shape[1:]
 
     if not os.path.exists("models"):
         os.makedirs("models")
+    torch.save(fcn.model.state_dict(), "models/fcn.pt")
+    print("FCN was successfully saved: models/fcn.pt")
 
-    torch.save(cnn.state_dict(), "models/cnn.pt")
+    print_auto_logged_info(mlflow.get_run(run_id=run.info.run_id))
+    convert_onnx(fcn, "models/fcn.onnx", input_size)
+
+    with mlflow.start_run(run_name="cnn_training") as run:
+        mlflow.log_params(cfg.cnn)
+        cnn_trainer.fit(cnn, train_loader_cnn)
+
+    torch.save(cnn.model.state_dict(), "models/cnn.pt")
     print("CNN was successfully saved: models/cnn.pt")
+
+    print_auto_logged_info(mlflow.get_run(run_id=run.info.run_id))
+    input_size = next(iter(train_loader_cnn))[0].shape[1:]
+    convert_onnx(cnn, "models/cnn.onnx", input_size)
 
 
 if __name__ == "__main__":

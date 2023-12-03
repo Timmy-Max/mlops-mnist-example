@@ -3,60 +3,52 @@ import time
 
 import hydra
 import torch
-import torch.nn as nn
 from config import Params
+from pytorch_lightning import Trainer
 
 from mnist_example.datasets import mnist_dataloader
-from mnist_example.models import CNN, FCN
-from mnist_example.train_eval import eval_model
+from mnist_example.models import CNN, FCN, MNISTClassifier
 
 
 @hydra.main(config_path="conf", config_name="config", version_base="1.3")
 def infer(cfg: Params) -> None:
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     batch_size = (cfg.fcn_training.batch_size + cfg.cnn_training.batch_size) // 2
     eval_loader = mnist_dataloader(batch_size=batch_size, train=False, shuffle=True)
 
-    fcn = FCN(**dict(cfg.fcn)).to(device)
-    cnn = CNN(**dict(cfg.cnn)).to(device)
-
-    loss_function = nn.CrossEntropyLoss()
+    fcn = MNISTClassifier(FCN, cfg.fcn, cfg.fcn_training)
+    fcn.model.load_state_dict(torch.load("models/fcn.pt"))
+    cnn = MNISTClassifier(CNN, cfg.cnn, cfg.cnn_training)
+    cnn.model.load_state_dict(torch.load("models/cnn.pt"))
 
     assert os.path.isfile("models/fcn.pt") and os.path.isfile(
         "models/cnn.pt"
     ), "You have to train the models first. To train the models, run train.py."
 
-    fcn.load_state_dict(torch.load("models/fcn.pt"))
-    cnn.load_state_dict(torch.load("models/cnn.pt"))
+    fcn.model.load_state_dict(torch.load("models/fcn.pt"))
+    cnn.model.load_state_dict(torch.load("models/cnn.pt"))
 
     start_time = time.time()
-    fcn_loss, fcn_accuracy = eval_model(fcn, loss_function, eval_loader, device)
-    print("FCN inference:")
-    print(f"FCN eval loss = {fcn_loss:.3f}")
-    print(f"FCN eval accuracy = {fcn_accuracy:.3f}")
+    trainer = Trainer()
+    metrics_fcn = trainer.test(model=fcn, dataloaders=eval_loader)
     print(f"Elapsed time: {(time.time() - start_time):.3f} sec")
 
-    print()
-
     start_time = time.time()
-    cnn_loss, cnn_accuracy = eval_model(cnn, loss_function, eval_loader, device)
-    print("CNN inference:")
-    print(f"CNN eval loss = {cnn_loss:.3f}")
-    print(f"CNN eval accuracy = {cnn_accuracy:.3f}")
+    trainer = Trainer()
+    metrics_cnn = trainer.test(model=cnn, dataloaders=eval_loader)
     print(f"Elapsed time: {(time.time() - start_time):.3f} sec")
 
     if not os.path.exists("reports"):
         os.makedirs("reports")
 
     with open("reports/inference_report.txt", "w") as report:
-        report.write(f"FCN eval loss = {fcn_loss}")
-        report.write("\n")
-        report.write(f"FCN eval accuracy = {fcn_accuracy}")
-        report.write("\n")
-        report.write(f"CNN eval loss = {cnn_loss}")
-        report.write("\n")
-        report.write(f"CNN eval accuracy = {cnn_accuracy}")
+        for key, value in metrics_fcn[0].items():
+            report.write(f"FCN {key} = {value}")
+
+        for key, value in metrics_cnn[0].items():
+            report.write(f"CNN {key} = {value}")
+
     print("Report was successfully saved: reports/inference_report.txt")
 
 
