@@ -10,7 +10,7 @@ from mnist_example.datasets import mnist_dataloader
 from mnist_example.models import CNN, FCN, MNISTClassifier
 
 
-@hydra.main(config_path="conf", config_name="config", version_base="1.3")
+@hydra.main(config_path="configs", config_name="models", version_base="1.3")
 def infer(cfg: Params) -> None:
     # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

@@ -34,7 +34,7 @@ def convert_onnx(model: nn.Module, save_path: str, input_size: tuple[int]) -> No
     print(f"Model has been converted to ONNX and saved in {save_path}")
 
 
-@hydra.main(config_path="conf", config_name="config", version_base="1.3")
+@hydra.main(config_path="configs", config_name="models", version_base="1.3")
 def train(cfg: Params) -> None:
     # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -69,7 +69,7 @@ def train(cfg: Params) -> None:
     print("FCN was successfully saved: models/fcn.pt")
 
     print_auto_logged_info(mlflow.get_run(run_id=run.info.run_id))
-    convert_onnx(fcn, "models/fcn.onnx", input_size)
+    convert_onnx(fcn.model, "models/fcn.onnx", input_size)
 
     with mlflow.start_run(run_name="cnn_training") as run:
         mlflow.log_params(cfg.cnn)
@@ -80,7 +80,7 @@ def train(cfg: Params) -> None:
 
     print_auto_logged_info(mlflow.get_run(run_id=run.info.run_id))
     input_size = next(iter(train_loader_cnn))[0].shape[1:]
-    convert_onnx(cnn, "models/cnn.onnx", input_size)
+    convert_onnx(cnn.model, "models/cnn.onnx", input_size)
 
 
 if __name__ == "__main__":

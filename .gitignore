@@ -105,3 +105,5 @@ target/
 
 # torch-lightning
 /lightning_logs/
+
+model-settings.json

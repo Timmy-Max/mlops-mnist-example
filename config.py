@@ -30,3 +30,10 @@ class Params:
 
     cnn: CNN
     cnn_training: Training
+
+
+@dataclass
+class Server:
+    tracking_uri: str
+    model_path: str
+    batch_size: int

@@ -7,7 +7,7 @@ fcn:
 
 fcn_training:
   batch_size: 256
-  n_epochs: 1
+  n_epochs: 10
   learning_rate: 1e-3
 
 cnn:
@@ -16,5 +16,5 @@ cnn:
 
 cnn_training:
   batch_size: 256
-  n_epochs: 1
+  n_epochs: 10
   learning_rate: 1e-3
