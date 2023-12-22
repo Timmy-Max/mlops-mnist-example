@@ -1,0 +1,5 @@
+outs:
+- md5: 2dac6ce90a92e0709509295ba832e527
+  size: 202679
+  hash: md5
+  path: cnn.pt

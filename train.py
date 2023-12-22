@@ -30,6 +30,11 @@ def convert_onnx(model: nn.Module, save_path: str, input_size: tuple[int]) -> No
         model,
         dummy_input,
         save_path,
+        opset_version=15,
+        do_constant_folding=True,
+        input_names=["IMAGES"],
+        output_names=["LOGITS"],
+        dynamic_axes={"IMAGES": {0: "BATCH_SIZE"}, "LOGITS": {0: "BATCH_SIZE"}},
     )
     print(f"Model has been converted to ONNX and saved in {save_path}")
 

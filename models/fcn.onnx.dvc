@@ -1,0 +1,5 @@
+outs:
+- md5: e408e80f12b6d0a1a0a1190e2faa3591
+  size: 442229
+  hash: md5
+  path: fcn.onnx

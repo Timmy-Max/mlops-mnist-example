@@ -88,9 +88,6 @@ target/
 # pytest cache
 .pytest_cache/
 
-# exclude saved models from source control by default
-/models/
-
 # exclude saved reports from source control by default
 /reports/
 
@@ -106,4 +103,8 @@ target/
 # torch-lightning
 /lightning_logs/
 
+# model-settings
 model-settings.json
+
+# model repository
+triton_server/model_repository/cnn_onnx/1/model.onnx

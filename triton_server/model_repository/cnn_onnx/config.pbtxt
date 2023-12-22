@@ -1,0 +1,29 @@
+name: "cnn_onnx"
+platform: "onnxruntime_onnx"
+max_batch_size: 8
+
+input [
+    {
+        name: "IMAGES"
+        data_type: TYPE_FP32
+        dims: [ 1, 28, 28 ]
+    }
+]
+
+output [
+    {
+        name: "LOGITS"
+        data_type: TYPE_FP32
+        dims: [ 10 ]
+    }
+]
+
+instance_group [
+    {
+        count: 1
+        kind: KIND_GPU
+        gpus: [0]
+    }
+]
+
+dynamic_batching: { max_queue_delay_microseconds: 100 }

@@ -1,0 +1,5 @@
+outs:
+- md5: c1871b81cb68712ba83d3d3db0822a1c
+  size: 444525
+  hash: md5
+  path: fcn.pt
