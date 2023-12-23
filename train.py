@@ -1,4 +1,5 @@
 import os
+import shutil
 
 import hydra
 import mlflow
@@ -86,6 +87,9 @@ def train(cfg: Params) -> None:
     print_auto_logged_info(mlflow.get_run(run_id=run.info.run_id))
     input_size = next(iter(train_loader_cnn))[0].shape[1:]
     convert_onnx(cnn.model, "models/cnn.onnx", input_size)
+    shutil.copyfile(
+        "models/cnn.onnx", "triton_server/model_repository/cnn_onnx/1/model.onnx"
+    )
 
 
 if __name__ == "__main__":

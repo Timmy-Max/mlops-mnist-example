@@ -1,6 +1,8 @@
 from functools import lru_cache
 
 import numpy as np
+import torch
+import torch.nn as nn
 from tritonclient.http import InferenceServerClient, InferInput, InferRequestedOutput
 from tritonclient.utils import np_to_triton_dtype
 
@@ -27,22 +29,11 @@ def call_triton_model(image: np.ndarray):
 
 
 def main():
-    image = np.zeros((1, 1, 28, 28), dtype=np.float32)
+    image = np.load("image_example.npy")
     logits = call_triton_model(image)
-    logits_true = [
-        -2.0692716,
-        -2.0118053,
-        -0.5460156,
-        -0.42701477,
-        -1.7434562,
-        -0.660521,
-        -0.87440807,
-        -1.9680347,
-        -0.14993061,
-        -1.2688434,
-    ]
-    logits_true = np.array(logits_true)
-    assert np.abs(logits - logits_true).all() < 1e6, "Something wents wrong"
+    probs = nn.functional.softmax(torch.tensor(logits), dim=1)
+    digit = torch.argmax(probs)
+    assert digit == 5, "Something wents wrong"
 
 
 if __name__ == "__main__":
